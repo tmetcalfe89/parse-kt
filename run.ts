@@ -49,7 +49,7 @@ async function processDirectory(currentDir: string, relativePath = "") {
       } catch (error) {
         await fs.writeFile(
           errorPath,
-          `Error processing ${entryPath}: ${error.message}`
+          `Error processing ${entryPath}: ${error.stack}`
         );
         ratio.l++;
       }
