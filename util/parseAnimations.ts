@@ -111,6 +111,11 @@ const animations: Record<
     parse: (params, vars) => {
       return `q.quadruped_walk()`;
     }
+  },
+  WingFlapIdleAnimation: {
+    parse: (params, vars) => {
+      return `q.sine_wing_flap()`;
+    }
   }
 };
 
