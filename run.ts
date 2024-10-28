@@ -39,12 +39,12 @@ async function processDirectory(currentDir: string, relativePath = "") {
       console.log(`Processing file: ${entryPath}`);
       const fileContent = await fs.readFile(entryPath, "utf-8");
       try {
+        await fs.copyFile(entryPath, copyPath);
         const newFileContent = ktPoserParser(fileContent);
         await fs.writeFile(
           toSnakeCase(outPath.slice(0, -8)) + ".json",
           JSON.stringify(newFileContent, null, 2)
         );
-        await fs.copyFile(entryPath, copyPath);
         ratio.w++;
       } catch (error) {
         await fs.writeFile(
