@@ -3,13 +3,25 @@ import parseAnimations from "./util/parseAnimations.ts";
 import parseParams from "./util/parseParams.ts";
 import parseVariables from "./util/parseVariables.ts";
 
-interface PoseParams {
-  poseName: string;
-  poseTypes: string;
+interface PoseParamsBase {
   transformTicks: string;
   animations: string;
   quirks: string;
 }
+
+interface SingleTypePoseParams extends PoseParamsBase {
+  poseName?: never;
+  poseTypes?: never;
+  poseType: string;
+}
+
+interface MultiTypePoseParams extends PoseParamsBase {
+  poseName: string;
+  poseTypes: string;
+  poseType?: never;
+}
+
+type PoseParams = SingleTypePoseParams | MultiTypePoseParams;
 
 interface RawPoseData {
   start: number;
@@ -82,13 +94,13 @@ export default function parseKt(fileText: string) {
   }
 
   function parsePose(poseParams: PoseParams) {
-    const poseType = poseParams.poseTypes;
-
     return {
-      poseName: poseType
-        ? poseType.toLowerCase()
+      poseName: poseParams.poseType
+        ? poseParams.poseType.toLowerCase().split(".").pop()
         : poseParams.poseName?.replace(/"/g, ""),
-      poseTypes: poseType ? [poseType] : parsePoseTypes(poseParams.poseTypes),
+      poseTypes: poseParams.poseTypes
+        ? parsePoseTypes(poseParams.poseTypes)
+        : [poseParams.poseType!.split(".").pop()],
       animations: parseAnimations(poseParams.animations, vars),
       transformTicks: +poseParams.transformTicks || undefined,
       quirks: poseParams.quirks
@@ -106,6 +118,7 @@ export default function parseKt(fileText: string) {
       rawPoses
         .map(parsePose)
         // .map((e) => ({ ...e, rawPoses }))
+        // @ts-ignore I'm also breaking the law here, but it's for a bad cause.
         .reduce((acc, entry) => ({ ...acc, [entry.poseName]: entry }), {})
     );
   }
