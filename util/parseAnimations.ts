@@ -107,6 +107,11 @@ const animations: Record<
       return `q.bedrock_quirk('${group}', '${animation}')`;
     },
   },
+  QuadrupedWalkAnimation: {
+    parse: (params, vars) => {
+      return `q.quadruped_walk()`;
+    }
+  }
 };
 
 function parseAnimation(raw: string, vars: Variables) {
