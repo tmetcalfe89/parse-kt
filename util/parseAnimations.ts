@@ -29,20 +29,28 @@ function findParam(
   return null;
 }
 
+function parseSingleBoneLook(
+  params: Record<string, any>,
+  vars: Record<string, any>
+): string {
+  const boneName = findParam(params, vars, {
+    paramIndex: 0,
+    paramKey: "boneName",
+    varName: "head",
+    varParser: (value) => value.match(/\("(\w+)"\)/)?.[1],
+  });
+  return `q.look('${boneName}')`;
+}
+
 const animations: Record<
   string,
   { parse: (params: Record<string, any>, vars: Record<string, any>) => string }
 > = {
   singleBoneLook: {
-    parse: (params, vars) => {
-      const boneName = findParam(params, vars, {
-        paramIndex: 0,
-        paramKey: "boneName",
-        varName: "head",
-        varParser: (value) => value.match(/\("(\w+)"\)/)?.[1],
-      });
-      return `q.look('${boneName}')`;
-    },
+    parse: parseSingleBoneLook,
+  },
+  SingleBoneLookAnimation: {
+    parse: parseSingleBoneLook,
   },
   bedrock: {
     parse: (params, vars) => {

@@ -3,7 +3,7 @@ import fs from "node:fs/promises";
 import ktPoserParser from "./index.ts";
 
 (async function () {
-  const file = await fs.readFile("./out/in/gen1/ArticunoModel.kt", "utf8");
+  const file = await fs.readFile("./out/in/gen1/DodrioModel.kt", "utf8");
   const output = ktPoserParser(file);
   fs.writeFile("./out.json", JSON.stringify(output, null, 2));
 })();

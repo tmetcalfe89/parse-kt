@@ -1,8 +1,12 @@
 import { Variables } from "./parseVariables";
 
+function checkVars(raw: string, vars: Variables) {
+  return raw in vars ? vars[raw].value : raw;
+}
+
 function parseParam(text: string, index: number, vars: Variables) {
   const firstEquals = text.indexOf("=");
-  if (firstEquals === -1) return { name: index, value: text };
+  if (firstEquals === -1) return { name: index, value: checkVars(text, vars) };
 
   const firstParen = text.indexOf("(");
   const firstCurly = text.indexOf("{");
@@ -11,18 +15,15 @@ function parseParam(text: string, index: number, vars: Variables) {
     (firstParen !== -1 && firstEquals > firstParen) ||
     (firstCurly !== -1 && firstEquals > firstCurly)
   ) {
-    return { name: index, value: text };
+    return { name: index, value: checkVars(text, vars) };
   }
 
   const name = text.slice(0, firstEquals).trim();
   let value: string | undefined = text.slice(firstEquals + 1).trim();
-  if (value in vars) {
-    value = vars[value].value;
-  }
 
   return {
     name,
-    value,
+    value: checkVars(value, vars),
   };
 }
 
