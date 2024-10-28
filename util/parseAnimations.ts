@@ -69,10 +69,10 @@ const animations: Record<
     parse: (params, vars) => {
       const periodMultiplier = findParam(params, vars, {
         paramKey: "periodMultiplier",
-      }).slice(0, -1);
+      })?.slice(0, -1);
       const amplitudeMultiplier = findParam(params, vars, {
         paramKey: "amplitudeMultiplier",
-      }).slice(0, -1);
+      })?.slice(0, -1);
       const leftLeg = findParam(params, vars, {
         paramKey: "leftLeg",
         varName: "leftLeg",

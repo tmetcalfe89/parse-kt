@@ -87,10 +87,15 @@ export default function parseKt(fileText: string) {
   }
 
   function parsePoseTypes(raw: string | undefined): string[] | undefined {
+    const singleTypePrefix = "PoseType.";
     return raw
       ?.split("+")
       .map((e) => e.trim())
-      .flatMap((collection) => poseCollections[collection]);
+      .flatMap((pose) =>
+        pose.startsWith(singleTypePrefix)
+          ? pose.slice(singleTypePrefix.length)
+          : poseCollections[pose]
+      );
   }
 
   function parsePose(poseParams: PoseParams) {

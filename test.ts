@@ -4,7 +4,7 @@ import ktPoserParser from "./index.ts";
 
 (async function () {
   const file = await fs.readFile(
-    "./out/in/gen1/FarfetchdGalarianModel.kt",
+    "./out/in/gen1/FearowModel.kt",
     "utf8"
   );
   const output = ktPoserParser(file);
