@@ -8,6 +8,11 @@ interface FindParamOptions {
   varParser?: (value: string) => any;
 }
 
+function beforeTheF(raw: string) {
+  if (!raw.includes("F")) return raw;
+  return raw.slice(0, raw.indexOf("F"));
+}
+
 function findParam(
   params: Record<string, any>,
   vars: Record<string, any>,
@@ -16,7 +21,7 @@ function findParam(
   const param =
     (paramKey != undefined && params[paramKey]) ||
     (paramIndex != undefined && params[paramIndex]);
-  if (param) return param.replace(/['"]/g, "");
+  if (param) return varParser(param.replace(/['"]/g, ""));
 
   const variable = varName != undefined && vars[varName];
   if (variable) return varParser(variable.value);
@@ -110,13 +115,40 @@ const animations: Record<
   QuadrupedWalkAnimation: {
     parse: (params, vars) => {
       return `q.quadruped_walk()`;
-    }
+    },
   },
   WingFlapIdleAnimation: {
     parse: (params, vars) => {
-      return `q.sine_wing_flap()`;
-    }
-  }
+      const rotation = findParam(params, vars, {
+        paramKey: "rotation",
+        varParser: (value) => value && parseParams(value, vars),
+      });
+      const flapFunction = findParam(params, vars, {
+        paramKey: "flapFunction",
+        varParser: (value) => value && parseParams(value, vars),
+      });
+      const axis = findParam(params, vars, {
+        paramKey: "axis",
+      });
+      const wingLeft = findParam(params, vars, {
+        paramKey: "leftWing",
+        varName: "leftWing",
+        varParser: (value) => value.match(/\("(\w+)"\)/)?.[1],
+      });
+      const wingRight = findParam(params, vars, {
+        paramKey: "rightWing",
+        varName: "rightWing",
+        varParser: (value) => value.match(/\("(\w+)"\)/)?.[1],
+      });
+      const { verticalShift, period, amplitude } =
+        rotation || flapFunction || {};
+      return `q.sine_wing_flap(${beforeTheF(amplitude)}, ${beforeTheF(
+        period
+      )}, ${beforeTheF(verticalShift)}, '${axis
+        .slice(axis.indexOf(".") + 1, axis.indexOf("_AXIS"))
+        .toLowerCase()}', '${wingLeft}', '${wingRight}')`;
+    },
+  },
 };
 
 function parseAnimation(raw: string, vars: Variables) {
