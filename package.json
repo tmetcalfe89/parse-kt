@@ -1,0 +1,20 @@
+{
+  "name": "parse-kt",
+  "version": "1.0.0",
+  "main": "index.js",
+  "directories": {
+    "test": "test"
+  },
+  "scripts": {
+    "test": "npx tsx test.ts",
+    "start": "npx tsx run.ts"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "description": "",
+  "type": "module",
+  "devDependencies": {
+    "@types/node": "^22.8.1"
+  }
+}
