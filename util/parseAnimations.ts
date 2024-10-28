@@ -29,28 +29,55 @@ function findParam(
   return null;
 }
 
-function parseSingleBoneLook(
-  params: Record<string, any>,
-  vars: Record<string, any>
-): string {
-  const boneName = findParam(params, vars, {
-    paramIndex: 0,
-    paramKey: "boneName",
-    varName: "head",
-    varParser: (value) => value.match(/\("(\w+)"\)/)?.[1],
-  });
-  return `q.look('${boneName}')`;
-}
-
 const animations: Record<
   string,
   { parse: (params: Record<string, any>, vars: Record<string, any>) => string }
 > = {
   singleBoneLook: {
-    parse: parseSingleBoneLook,
+    parse: (params, vars) => {
+      const boneName = findParam(params, vars, {
+        paramIndex: 0,
+        paramKey: "boneName",
+        varName: "head",
+        varParser: (value) => value.match(/\("(\w+)"\)/)?.[1],
+      });
+      return `q.look('${boneName}')`;
+    },
   },
   SingleBoneLookAnimation: {
-    parse: parseSingleBoneLook,
+    parse: (params, vars) => {
+      const boneName = findParam(params, vars, {
+        paramIndex: 0,
+        paramKey: "boneName",
+        varName: "head",
+        varParser: (value) => value.match(/\("(\w+)"\)/)?.[1],
+      });
+      const pitchMultiplier = findParam(params, vars, {
+        paramIndex: 1,
+        paramKey: "pitchMultiplier",
+      }) || 1;
+      const yawMultiplier = findParam(params, vars, {
+        paramIndex: 2,
+        paramKey: "yawMultiplier",
+      }) || 1;
+      const maxPitch = findParam(params, vars, {
+        paramIndex: 3,
+        paramKey: "maxPitch",
+      }) || 70;
+      const minPitch = findParam(params, vars, {
+        paramIndex: 4,
+        paramKey: "minPitch",
+      }) || -45;
+      const maxYaw = findParam(params, vars, {
+        paramIndex: 5,
+        paramKey: "maxYaw",
+      }) || 45;
+      const minYaw = findParam(params, vars, {
+        paramIndex: 6,
+        paramKey: "minYaw",
+      }) || -45;
+      return `q.look('${boneName}', ${pitchMultiplier}, ${yawMultiplier}, ${maxPitch}, ${minPitch}, ${maxYaw}, ${minYaw})`;
+    },
   },
   bedrock: {
     parse: (params, vars) => {
