@@ -169,6 +169,6 @@ function parseAnimation(raw: string, vars: Variables) {
 
 export default function parseAnimations(raw: string, vars: Variables) {
   const params = parseParams(raw, vars);
-  const animations = Object.values(params);
+  const animations = Object.values(params).filter((e) => e);
   return animations.map((e) => parseAnimation(e, vars));
 }
