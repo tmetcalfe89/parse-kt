@@ -1,5 +1,6 @@
 import fs from "node:fs/promises";
 import path from "node:path";
+
 import ktPoserParser from "./index.ts";
 
 const inDir = `C:/Users/17606/Desktop/TimInc/Minecraft/cobblemon/common/src/main/kotlin/com/cobblemon/mod/common/client/render/models/blockbench/pokemon`;
@@ -15,6 +16,13 @@ function toSnakeCase(str: string) {
     .toLowerCase();
 }
 const ratio = { w: 0, l: 0 };
+
+function shakeCommentedLines(raw: string) {
+  return raw
+    .split(/[\r\n]/g)
+    .filter((line) => !line.trim().startsWith("//"))
+    .join("\n");
+}
 
 async function processDirectory(currentDir: string, relativePath = "") {
   const entries = await fs.readdir(currentDir, { withFileTypes: true });
@@ -40,7 +48,7 @@ async function processDirectory(currentDir: string, relativePath = "") {
       const fileContent = await fs.readFile(entryPath, "utf-8");
       try {
         await fs.copyFile(entryPath, copyPath);
-        const newFileContent = ktPoserParser(fileContent);
+        const newFileContent = ktPoserParser(shakeCommentedLines(fileContent));
         await fs.writeFile(
           toSnakeCase(outPath.slice(0, -8)) + ".json",
           JSON.stringify(newFileContent, null, 2)
