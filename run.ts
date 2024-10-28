@@ -14,6 +14,7 @@ function toSnakeCase(str: string) {
     .replace(/\s+/g, "_")
     .toLowerCase();
 }
+const ratio = { w: 0, l: 0 };
 
 async function processDirectory(currentDir: string, relativePath = "") {
   const entries = await fs.readdir(currentDir, { withFileTypes: true });
@@ -44,11 +45,13 @@ async function processDirectory(currentDir: string, relativePath = "") {
           JSON.stringify(newFileContent, null, 2)
         );
         await fs.copyFile(entryPath, copyPath);
+        ratio.w++;
       } catch (error) {
         await fs.writeFile(
           errorPath,
           `Error processing ${entryPath}: ${error.message}`
         );
+        ratio.l++;
       }
     }
   }
@@ -57,6 +60,7 @@ async function processDirectory(currentDir: string, relativePath = "") {
 (async function () {
   try {
     await processDirectory(inDir);
+    console.log(ratio);
   } catch (error) {
     console.error("Error:", error);
   }
