@@ -74,20 +74,26 @@ export default function parseKt(fileText: string) {
     return poses;
   }
 
-  function parsePoseTypes(raw: string): string[] {
+  function parsePoseTypes(raw: string | undefined): string[] | undefined {
     return raw
-      .split("+")
+      ?.split("+")
       .map((e) => e.trim())
       .flatMap((collection) => poseCollections[collection]);
   }
 
   function parsePose(poseParams: PoseParams) {
+    const poseType = poseParams.poseTypes;
+
     return {
-      poseName: poseParams.poseName.replace(/"/g, ""),
-      poseTypes: parsePoseTypes(poseParams.poseTypes),
+      poseName: poseType
+        ? poseType.toLowerCase()
+        : poseParams.poseName?.replace(/"/g, ""),
+      poseTypes: poseType ? [poseType] : parsePoseTypes(poseParams.poseTypes),
       animations: parseAnimations(poseParams.animations, vars),
       transformTicks: +poseParams.transformTicks || undefined,
-      quirks: parseAnimations(poseParams.quirks, vars),
+      quirks: poseParams.quirks
+        ? parseAnimations(poseParams.quirks, vars)
+        : undefined,
     };
   }
 
@@ -96,10 +102,12 @@ export default function parseKt(fileText: string) {
     const rawPoses = findRawPoses(fileText).map((e, i) =>
       parseParams(e, vars)
     ) as PoseParams[];
-    return rawPoses
-      .map(parsePose)
-      // .map((e) => ({ ...e, rawPoses }))
-      .reduce((acc, entry) => ({ ...acc, [entry.poseName]: entry }), {});
+    return (
+      rawPoses
+        .map(parsePose)
+        // .map((e) => ({ ...e, rawPoses }))
+        .reduce((acc, entry) => ({ ...acc, [entry.poseName]: entry }), {})
+    );
   }
 
   return {
