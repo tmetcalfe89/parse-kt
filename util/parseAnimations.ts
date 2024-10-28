@@ -67,19 +67,21 @@ const animations: Record<
   },
   BipedWalkAnimation: {
     parse: (params, vars) => {
-      const periodMultiplier = findParam(params, vars, {
-        paramKey: "periodMultiplier",
-      })?.slice(0, -1);
-      const amplitudeMultiplier = findParam(params, vars, {
-        paramKey: "amplitudeMultiplier",
-      })?.slice(0, -1);
+      const periodMultiplier =
+        findParam(params, vars, {
+          paramIndex: 1,
+          paramKey: "periodMultiplier",
+        })?.slice(0, -1) || 0.6662;
+      const amplitudeMultiplier =
+        findParam(params, vars, {
+          paramIndex: 2,
+          paramKey: "amplitudeMultiplier",
+        })?.slice(0, -1) || 1.4;
       const leftLeg = findParam(params, vars, {
-        paramKey: "leftLeg",
         varName: "leftLeg",
         varParser: (value) => value.match(/\("(\w+)"\)/)?.[1],
       });
       const rightLeg = findParam(params, vars, {
-        paramKey: "rightLeg",
         varName: "rightLeg",
         varParser: (value) => value.match(/\("(\w+)"\)/)?.[1],
       });
