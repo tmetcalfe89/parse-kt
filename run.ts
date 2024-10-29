@@ -4,10 +4,30 @@ import path from "node:path";
 import ktPoserParser from "./index.ts";
 
 const inDir = `C:/Users/17606/Desktop/TimInc/Minecraft/cobblemon/common/src/main/kotlin/com/cobblemon/mod/common/client/render/models/blockbench/pokemon`;
-const rootOutDir = "./out";
-const outDir = path.join(rootOutDir, "./out");
-const copyDir = path.join(rootOutDir, "./in");
-const errorDir = path.join(rootOutDir, "./error");
+const outDir =
+  "C:/Users/17606/Desktop/TimInc/Minecraft/cobblemon/common/src/main/resources/assets/cobblemon/bedrock/pokemon/posers/new";
+const copyDir = "./out/in";
+const errorDir = "./out/error";
+const mirrorDir =
+  "C:/Users/17606/Desktop/TimInc/Minecraft/cobblemon/common/src/main/resources/assets/cobblemon/bedrock/pokemon/models";
+
+const fileIndex: { [key: string]: string } = {};
+async function indexFilesByName(currentDir: string, relativePath = "") {
+  const entries = await fs.readdir(currentDir, { withFileTypes: true });
+
+  for (const entry of entries) {
+    const entryPath = path.join(currentDir, entry.name);
+    const newRelativePath = path.join(relativePath, entry.name);
+
+    if (entry.isDirectory()) {
+      await indexFilesByName(entryPath, newRelativePath);
+    } else if (entry.isFile()) {
+      fileIndex[
+        entryPath.split("\\").slice(-2, -1).join("").split("_").pop()!
+      ] = entryPath.split("\\").slice(-2, -1).join("");
+    }
+  }
+}
 
 function toSnakeCase(str: string) {
   return str
@@ -35,7 +55,6 @@ async function processDirectory(currentDir: string, relativePath = "") {
     const errorPath = `${errorDir}${newRelativePath}`;
 
     if (entry.isDirectory()) {
-      await fs.mkdir(outPath, { recursive: true });
       await fs.mkdir(copyPath, { recursive: true });
       await fs.mkdir(errorPath, { recursive: true });
       await processDirectory(entryPath, newRelativePath);
@@ -49,10 +68,27 @@ async function processDirectory(currentDir: string, relativePath = "") {
       try {
         await fs.copyFile(entryPath, copyPath);
         const newFileContent = ktPoserParser(shakeCommentedLines(fileContent));
-        await fs.writeFile(
-          toSnakeCase(outPath.slice(0, -8)) + ".json",
-          JSON.stringify(newFileContent, null, 2)
+        const searchable = outPath.slice(0, -8).split("/").pop()!.toLowerCase();
+        let targetDir =
+          fileIndex[toSnakeCase(searchable)] ||
+          Object.entries(fileIndex).find(
+            ([k, v]) => k.startsWith(searchable) || searchable.startsWith(k)
+          )?.[1];
+        if (!targetDir) {
+          throw new Error(`Couldn't find ${searchable} in fileIndex`);
+        }
+        const targetFile = path.join(
+          outDir,
+          targetDir,
+          toSnakeCase(
+            entryPath.split("/").pop()?.replaceAll("Model.kt", "")!
+          ) + ".json"
         );
+        await fs.mkdir(targetFile.split("\\").slice(0, -1).join("\\"), {
+          recursive: true,
+        });
+        console.log(targetFile);
+        await fs.writeFile(targetFile, JSON.stringify(newFileContent, null, 2));
         ratio.w++;
       } catch (error) {
         await fs.writeFile(
@@ -67,6 +103,9 @@ async function processDirectory(currentDir: string, relativePath = "") {
 
 (async function () {
   try {
+    await fs.mkdir("./out", { recursive: true });
+    await indexFilesByName(mirrorDir);
+    fs.writeFile("./out/filesIndex.json", JSON.stringify(fileIndex, null, 2));
     await processDirectory(inDir);
     console.log(ratio);
   } catch (error) {
