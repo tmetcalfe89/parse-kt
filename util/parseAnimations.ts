@@ -157,7 +157,31 @@ const animations: Record<
   },
   QuadrupedWalkAnimation: {
     parse: (params, vars) => {
-      return `q.quadruped_walk()`;
+      const periodMultiplier = findParam(params, vars, {
+        paramIndex: 1,
+        paramKey: "periodMultiplier",
+      })?.slice(0, -1) || 0.6662;
+      const amplitudeMultiplier = findParam(params, vars, {
+        paramIndex: 2,
+        paramKey: "amplitudeMultiplier",
+      })?.slice(0, -1) || 1.4;
+      const legFrontLeft = findParam(params, vars, {
+        varName: "foreLeftLeg",
+        varParser: (value) => value.match(/\("(\w+)"\)/)?.[1],
+      });
+      const legFrontRight = findParam(params, vars, {
+        varName: "foreRightLeg",
+        varParser: (value) => value.match(/\("(\w+)"\)/)?.[1],
+      });
+      const legBackLeft = findParam(params, vars, {
+        varName: "hindLeftLeg",
+        varParser: (value) => value.match(/\("(\w+)"\)/)?.[1],
+      });
+      const legBackRight = findParam(params, vars, {
+        varName: "hindRightLeg",
+        varParser: (value) => value.match(/\("(\w+)"\)/)?.[1],
+      });
+      return `q.quadruped_walk('${legFrontLeft}', '${legFrontRight}', '${legBackLeft}', '${legBackRight}', ${periodMultiplier}, ${amplitudeMultiplier})`;
     },
   },
   WingFlapIdleAnimation: {
